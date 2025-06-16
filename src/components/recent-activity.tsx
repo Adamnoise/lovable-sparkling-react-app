@@ -1,7 +1,9 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Package, Palette, FolderPlus } from "lucide-react";
 import { formatTimeAgo } from "@/lib/utils";
+import type { Activity as ActivityType } from "@/types/api";
 
 const getActivityIcon = (type: string) => {
   switch (type) {
@@ -30,7 +32,7 @@ const getActivityColor = (type: string) => {
 };
 
 export default function RecentActivity() {
-  const { data: activities } = useQuery({
+  const { data: activities } = useQuery<ActivityType[]>({
     queryKey: ['/api/recent-activity'],
     refetchInterval: 10000, // Refresh every 10 seconds
   });
@@ -53,7 +55,7 @@ export default function RecentActivity() {
           </div>
         ) : (
           <div className="space-y-3">
-            {activities.map((activity: any) => (
+            {activities.map((activity: ActivityType) => (
               <div key={activity.id} className="flex items-start space-x-3">
                 <div className={`w-2 h-2 ${getActivityColor(activity.type)} rounded-full mt-2 flex-shrink-0`}>
                 </div>

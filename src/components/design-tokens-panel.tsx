@@ -1,7 +1,9 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Palette, FileText, Layers, Eye } from "lucide-react";
+import type { Project, DesignToken } from "@/types/api";
 
 const getTokenIcon = (type: string) => {
   switch (type) {
@@ -19,25 +21,25 @@ const getTokenIcon = (type: string) => {
 };
 
 export default function DesignTokensPanel() {
-  const { data: projects } = useQuery({
+  const { data: projects } = useQuery<Project[]>({
     queryKey: ['/api/projects'],
   });
 
   // Get the most recent completed project for tokens
-  const latestProject = projects?.find((p: any) => p.status === 'completed') || projects?.[0];
+  const latestProject = projects?.find((p: Project) => p.status === 'completed') || projects?.[0];
 
-  const { data: tokens } = useQuery({
+  const { data: tokens } = useQuery<DesignToken[]>({
     queryKey: [`/api/design-tokens/${latestProject?.id}`],
     enabled: !!latestProject,
   });
 
-  const groupedTokens = tokens?.reduce((acc: any, token: any) => {
+  const groupedTokens = tokens?.reduce((acc: Record<string, DesignToken[]>, token: DesignToken) => {
     if (!acc[token.tokenType]) {
       acc[token.tokenType] = [];
     }
     acc[token.tokenType].push(token);
     return acc;
-  }, {});
+  }, {} as Record<string, DesignToken[]>);
 
   return (
     <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -62,7 +64,7 @@ export default function DesignTokensPanel() {
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Colors</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {groupedTokens.color.map((token: any, index: number) => (
+                  {groupedTokens.color.map((token: DesignToken, index: number) => (
                     <div key={index} className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
                       <div 
                         className="w-4 h-4 rounded border"
@@ -82,7 +84,7 @@ export default function DesignTokensPanel() {
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Typography</h3>
                 <div className="space-y-2">
-                  {groupedTokens.typography.map((token: any, index: number) => (
+                  {groupedTokens.typography.map((token: DesignToken, index: number) => (
                     <div key={index} className="p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
                       <div className={`${
                         token.tokenName.includes('heading') ? 'text-lg font-bold' : 'text-sm'
@@ -103,7 +105,7 @@ export default function DesignTokensPanel() {
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Spacing</h3>
                 <div className="grid grid-cols-4 gap-1">
-                  {groupedTokens.spacing.map((token: any, index: number) => {
+                  {groupedTokens.spacing.map((token: DesignToken, index: number) => {
                     const size = parseInt(token.tokenValue);
                     const height = Math.min(32, Math.max(8, size / 2));
                     return (

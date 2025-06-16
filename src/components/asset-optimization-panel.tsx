@@ -1,24 +1,26 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Image, CheckCircle, Loader2 } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
+import type { Project, Asset } from "@/types/api";
 
 export default function AssetOptimizationPanel() {
-  const { data: projects } = useQuery({
+  const { data: projects } = useQuery<Project[]>({
     queryKey: ['/api/projects'],
   });
 
   // Get the most recent project for assets
   const latestProject = projects?.[0];
 
-  const { data: assets } = useQuery({
+  const { data: assets } = useQuery<Asset[]>({
     queryKey: [`/api/assets/${latestProject?.id}`],
     enabled: !!latestProject,
   });
 
-  const totalOriginalSize = assets?.reduce((acc: number, asset: any) => acc + asset.originalSize, 0) || 0;
-  const totalOptimizedSize = assets?.reduce((acc: number, asset: any) => 
+  const totalOriginalSize = assets?.reduce((acc: number, asset: Asset) => acc + asset.originalSize, 0) || 0;
+  const totalOptimizedSize = assets?.reduce((acc: number, asset: Asset) => 
     acc + (asset.optimizedSize || asset.originalSize), 0) || 0;
   const totalSavings = totalOriginalSize > 0 ? 
     Math.round(((totalOriginalSize - totalOptimizedSize) / totalOriginalSize) * 100) : 0;
@@ -42,7 +44,7 @@ export default function AssetOptimizationPanel() {
           </div>
         ) : (
           <div className="space-y-4">
-            {assets.map((asset: any) => (
+            {assets.map((asset: Asset) => (
               <div 
                 key={asset.id}
                 className={`flex items-center justify-between p-3 rounded-lg ${

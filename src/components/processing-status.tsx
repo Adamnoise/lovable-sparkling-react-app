@@ -1,8 +1,10 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Link2, Image, Palette, Code, CheckCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
+import type { Project, ProcessingJob } from "@/types/api";
 
 const stepIcons = {
   api_connection: Link2,
@@ -19,15 +21,15 @@ const stepNames = {
 };
 
 export default function ProcessingStatus() {
-  const { data: projects } = useQuery({
+  const { data: projects } = useQuery<Project[]>({
     queryKey: ['/api/projects'],
     refetchInterval: 2000,
   });
 
   // Get the most recent processing project
-  const currentProject = projects?.find((p: any) => p.status === 'processing');
+  const currentProject = projects?.find((p: Project) => p.status === 'processing');
 
-  const { data: jobs } = useQuery({
+  const { data: jobs } = useQuery<ProcessingJob[]>({
     queryKey: [`/api/processing-jobs/${currentProject?.id}`],
     enabled: !!currentProject,
     refetchInterval: 1000,
@@ -81,7 +83,7 @@ export default function ProcessingStatus() {
   };
 
   const overallProgress = jobs ? 
-    Math.round(jobs.reduce((acc: number, job: any) => acc + job.progress, 0) / jobs.length) : 0;
+    Math.round(jobs.reduce((acc: number, job: ProcessingJob) => acc + job.progress, 0) / jobs.length) : 0;
 
   return (
     <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -100,9 +102,9 @@ export default function ProcessingStatus() {
             Processing: <span className="font-medium text-gray-900 dark:text-white">{currentProject.name}</span>
           </div>
 
-          {jobs?.map((job: any) => {
-            const StepIcon = stepIcons[job.step as keyof typeof stepIcons] || Code;
-            const stepName = stepNames[job.step as keyof typeof stepNames] || job.step;
+          {jobs?.map((job: ProcessingJob) => {
+            const StepIcon = stepIcons[job.step] || Code;
+            const stepName = stepNames[job.step] || job.step;
 
             return (
               <div 

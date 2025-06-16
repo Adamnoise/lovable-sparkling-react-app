@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,20 +6,21 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw, Eye, Download, Copy, CheckCircle, Loader2, Package, FileText } from "lucide-react";
 import { formatTimeAgo, copyToClipboard, downloadFile } from "@/lib/utils";
+import type { Component } from "@/types/api";
 
 interface GeneratedComponentsProps {
-  onComponentPreview: (component: any) => void;
+  onComponentPreview: (component: Component) => void;
 }
 
 export default function GeneratedComponents({ onComponentPreview }: GeneratedComponentsProps) {
   const { toast } = useToast();
   
-  const { data: components, refetch, isLoading } = useQuery({
+  const { data: components, refetch, isLoading } = useQuery<Component[]>({
     queryKey: ['/api/components'],
     refetchInterval: 5000,
   });
 
-  const handleCopyCode = async (component: any) => {
+  const handleCopyCode = async (component: Component) => {
     const success = await copyToClipboard(component.code);
     if (success) {
       toast({
@@ -34,7 +36,7 @@ export default function GeneratedComponents({ onComponentPreview }: GeneratedCom
     }
   };
 
-  const handleDownload = (component: any) => {
+  const handleDownload = (component: Component) => {
     downloadFile(component.code, `${component.name}.tsx`, 'text/typescript');
     toast({
       title: "Downloaded",
@@ -98,7 +100,7 @@ export default function GeneratedComponents({ onComponentPreview }: GeneratedCom
           </div>
         ) : (
           <div className="space-y-4">
-            {components.map((component: any) => (
+            {components.map((component: Component) => (
               <div 
                 key={component.id}
                 className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"

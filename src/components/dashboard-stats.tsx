@@ -1,9 +1,11 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Folder, Package, Clock, CheckCircle } from "lucide-react";
+import type { DashboardStats } from "@/types/api";
 
 export default function DashboardStats() {
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<DashboardStats>({
     queryKey: ['/api/dashboard/stats'],
     refetchInterval: 5000, // Refresh every 5 seconds
   });
